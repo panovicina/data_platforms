@@ -272,3 +272,61 @@ exit
    ```
 
 На этом установка и настройка завершены, Hive готов к использованию.
+
+Проверить работу можно подключившись к серверу Hive с помощью Beeline:
+   ```bash
+   beeline -u jdbc:hive2://<jumpnode-ip>:10000
+   ```
+
+### Шаг 10: Загрузка данных в Apache Hive:
+
+У нас есть датасет test.csv. Для того, чтобы загрузить его на JumpNode необходимо выполнить следующее:
+
+```bash
+   scp dataset.csv <jumpnode-ip>:/home/hadoop/test.csv
+```
+
+Далее, находясь на JumpNode под пользователем hadoop выполним следующее:
+
+1. Создадим директорию с именем test в корне HDFS:
+   ```bash
+   hdfs dfs -mkdir /test
+   ```
+
+2. Установим права на запись директории test:
+
+   ```bash
+   hdfs dfs -chmod g+w /test
+   ```
+   
+3. Теперь скопируем файл test.csv из локальной файловой системы в директорию /test в HDFS:
+   ```bash
+   hdfs dfs -put test.csv /test
+   ```
+
+4. Подключимся к серверу Hive:
+   ```bash
+   beeline -u jdbc:hive2://<jumpnode-ip>:10000
+   ```
+
+5. Далее уже в Beeline:
+   ```sql
+   CREATE DATABASE test;
+   CREATE TABLE IF NOT EXISTS test.dataset (
+      `employee` string,
+      `first_name` string,
+      `last_name` string,
+      `hire_month` string)
+      PARTITIONED BY (`department` string)
+      ROW FORMAT DELIMITED FIELDS TERMINATED BY ',';
+
+   LOAD DATA INPATH '/test/test.csv' INTO TABLE test.dataset;
+   ```
+
+   Посмотрим, сколько строк в датасете:
+
+   ```sql
+   SELECT COUNT(*) FROM dataset;
+   ```
+
+В результате увидим, что у нас есть таблица с 2916 строками.
