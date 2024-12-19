@@ -41,9 +41,10 @@ def load_data(df, spark):
     # Запись данных в Hive таблицу с перезаписью существующих данных, partition по 'reg_year'
     df.write.mode("overwrite").partitionBy("reg_year").saveAsTable("registration_data")
 
-# Определение потока данных для процесса ETL
+
 @flow
 def process_data():
+    # Определение потока данных для процесса ETL
     spark_session = create_session()
     extractdata = extract_data(spark_session)
     transform_data = transform_data(extract_data)
