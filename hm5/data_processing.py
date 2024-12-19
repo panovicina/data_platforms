@@ -44,12 +44,11 @@ def load_data(df, spark):
 # Определение потока данных для процесса ETL
 @flow
 def process_data():
-    # поток данных для процесса ETL
-    spark_sess = create_session()
-    edata = extract_data(spark_sess)
-    tdata = transform_data(edata)
-    load_data(tdata, spark_sess)
-    spark_sess.stop()
+    spark_session = create_session()
+    extractdata = extract_data(spark_session)
+    transform_data = transform_data(extract_data)
+    load_data(transform_data, spark_session)
+    spark_session.stop()
 
 # Запуск потока
 if __name__ == "__main__":
